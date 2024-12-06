@@ -1,13 +1,12 @@
 package com.recipe.entity;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.Date;
 
-@Getter
-@Setter
+@Data
 @Entity
 @Table(name = "Menu")
 public class Menu {
@@ -19,6 +18,7 @@ public class Menu {
 
     @ManyToOne
     @JoinColumn(name = "member_id", nullable = false)
+    @JsonIgnore
     private Member member;; // 회원 ID (외래키)
 
     @Column(name = "name", nullable = false, length = 255)
