@@ -20,6 +20,8 @@ public class RecipeStep {
     @JoinColumn(name = "recipe_idx")
     private Recipe recipe;
 
+    private String step_image;
+
     private Long step_order;
     private String description;
 }
