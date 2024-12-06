@@ -16,7 +16,6 @@ target/
 ### IntelliJ IDEA ###
 application.properties
 
-
 # resources 폴더의 모든 파일은 포함
 !**/src/main/resources/**/*
 !**/src/test/resources/**/*
