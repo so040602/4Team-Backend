@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class RecipeIngredient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recipeIngredient_idx")
     private Long recipeIngredient_id;
 

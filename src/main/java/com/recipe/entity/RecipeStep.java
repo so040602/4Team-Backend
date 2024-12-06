@@ -11,15 +11,15 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Ingredient {
+public class RecipeStep {
     @Id
-    @Column(name = "Ingredient_idx")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ingredient_idx;
+    private Long recipeStep_id;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipe_idx")
+    private Recipe recipe;
 
-    private String ingredient;
-    private String image;
-
-
+    private Long step_order;
+    private String description;
 }

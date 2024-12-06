@@ -16,7 +16,7 @@ public class Menu {
     @Column(name = "menu_idx")
     private Long menuIdx; // 메뉴 고유 식별자 (Primary Key)
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     @JsonIgnore
     private Member member;; // 회원 ID (외래키)

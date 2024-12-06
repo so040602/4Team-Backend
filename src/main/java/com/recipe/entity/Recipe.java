@@ -18,26 +18,25 @@ import java.util.List;
 public class Recipe {
     @Id
     @Column(name = "recipe_idx")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long recipe_idx;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id") //외래키 컬럼
     private Member member;
 
     private String name;
     private String food_level;
     private int time;
-    private int step_order;
-    private String cook_instruction;
     private String complete_image;
     private String tip;
     private int views;
-
 
     private LocalDateTime recipeDate;
 
     @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<RecipeIngredient> ingredients = new ArrayList<>();
 
+    @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<RecipeStep> recipeSteps = new ArrayList<>();
 }
