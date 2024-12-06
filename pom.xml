@@ -11,8 +11,8 @@
 	<groupId>com.recipe</groupId>
 	<artifactId>recipe</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name xml:lang="en">Recipe</name>
-	<description xml:lang="en">Recipe project for Spring Boot</description>
+	<name>recipe</name>
+	<description>Recipe project for Spring Boot</description>
 	<url/>
 	<licenses>
 		<license/>
