@@ -23,7 +23,7 @@ public class Recipe {
 
     @ManyToOne
     @JoinColumn(name = "member_id") //외래키 컬럼
-    private Member member_id;
+    private Member member;
 
     private String name;
     private String food_level;
