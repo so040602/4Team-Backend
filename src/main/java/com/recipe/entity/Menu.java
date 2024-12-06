@@ -17,9 +17,9 @@ public class Menu {
     @Column(name = "menu_idx")
     private Long menuIdx; // 메뉴 고유 식별자 (Primary Key)
 
-    // join ManyToOne
-    @Column(name = "member_id", nullable = false)
-    private Long memberId; // 회원 ID (외래키)
+    @ManyToOne
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;; // 회원 ID (외래키)
 
     @Column(name = "name", nullable = false, length = 255)
     private String name; // 메뉴 이름
