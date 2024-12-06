@@ -14,7 +14,12 @@ target/
 .sts4-cache
 
 ### IntelliJ IDEA ###
-application.properties
+**/application.properties
+
+
+# resources 폴더의 모든 파일은 포함
+!**/src/main/resources/**/*
+!**/src/test/resources/**/*
 
 .idea
 *.iws
