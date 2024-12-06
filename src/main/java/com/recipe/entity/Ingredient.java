@@ -17,6 +17,7 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long ingredient_idx;
 
+
     private String ingredient;
     private String image;
 
