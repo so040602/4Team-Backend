@@ -30,6 +30,4 @@ public class RecipeIngredient {
     @JoinColumn(name = "ingredient_idx")
     private Ingredient ingredient;
 
-    @CreatedDate
-    private LocalDate regData;
 }

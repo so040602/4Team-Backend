@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class Recipe {
     private String tip;
     private int views;
 
+    @CreationTimestamp
     private LocalDateTime recipeDate;
 
     @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
