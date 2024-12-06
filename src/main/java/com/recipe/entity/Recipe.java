@@ -30,6 +30,7 @@ public class Recipe {
     private String tip;
     private int views;
 
+
     private LocalDateTime recipeDate;
 
     @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
