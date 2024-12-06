@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @Builder
@@ -34,4 +35,6 @@ public class Member {
     private Timestamp regdate;
     private Timestamp moddate;
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Recipe> recipes;
 }
