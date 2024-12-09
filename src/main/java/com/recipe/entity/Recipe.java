@@ -37,13 +37,6 @@ public class Recipe {
 
     private String state_recipe;
 
-    @PrePersist
-    public void prePersist() {
-        if(this.state_recipe == null){
-            this.state_recipe = "대기";
-        }
-    }
-
     @CreationTimestamp
     @Column(name = "recipe_date")
     private LocalDateTime recipeDate;
