@@ -33,7 +33,19 @@ public class Recipe {
     private String tip;
     private int views;
 
+    private String situation;
+
+    private String state_recipe;
+
+    @PrePersist
+    public void prePersist() {
+        if(this.state_recipe == null){
+            this.state_recipe = "대기";
+        }
+    }
+
     @CreationTimestamp
+    @Column(name = "recipe_date")
     private LocalDateTime recipeDate;
 
     @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
@@ -41,4 +53,7 @@ public class Recipe {
 
     @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<RecipeStep> recipeSteps = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
+    private List<RecipeUtensil> recipeUtensils = new ArrayList<>();
 }
