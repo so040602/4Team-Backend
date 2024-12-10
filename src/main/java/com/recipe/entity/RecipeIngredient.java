@@ -18,7 +18,7 @@ import java.time.LocalDate;
 public class RecipeIngredient {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "recipeIngredient_idx")
     private Long recipeIngredient_id;
 
@@ -30,6 +30,5 @@ public class RecipeIngredient {
     @JoinColumn(name = "ingredient_idx")
     private Ingredient ingredient;
 
-    @CreatedDate
-    private LocalDate regData;
+    private String food_unit;
 }
