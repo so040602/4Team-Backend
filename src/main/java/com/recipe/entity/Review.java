@@ -35,7 +35,7 @@ public class Review {
     private Integer rev_view_count = 0;
 
     @CreationTimestamp
-    private Timestamp rev_created_at;
+    private Timestamp revCreatedAt; // rev_created_at에서 revCreatedAt으로 변경
 
     @UpdateTimestamp
     private Timestamp rev_updated_at;
