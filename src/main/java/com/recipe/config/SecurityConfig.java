@@ -81,6 +81,11 @@ public class SecurityConfig {
                 .requestMatchers("/*").permitAll()
                 .requestMatchers("/api/auth/**").permitAll()  // 회원가입, 로그인 엔드포인트는 모두 허용
                 .requestMatchers("/api/public/**").permitAll() // 공개 API 엔드포인트
+                .requestMatchers("/api/search/**").permitAll() // 공개 API 엔드포인트
+                .requestMatchers("/api/data/**").permitAll() // 공개 API 엔드포인트
+                .requestMatchers("/menus/season/{season}").permitAll() // 공개 API 엔드포인트
+                .requestMatchers("/menus/mealTime/{mealTime}").permitAll() // 공개 API 엔드포인트
+                .requestMatchers("/menus/random").permitAll() // 공개 API 엔드포인트
                 .anyRequest().authenticated()
         );
 
