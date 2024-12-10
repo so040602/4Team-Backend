@@ -1,117 +1,126 @@
 package com.recipe.service;
 
+import com.recipe.Repository.MemberRepository;
+import com.recipe.Repository.ReviewCommentRepository;
 import com.recipe.Repository.ReviewRepository;
 import com.recipe.dto.ReviewDTO;
 import com.recipe.dto.ReviewCommentDTO;
 import com.recipe.entity.Review;
 import com.recipe.entity.ReviewComment;
+import com.recipe.entity.Member;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ReviewService {
-
     private final ReviewRepository reviewRepository;
-
-    public Page<ReviewDTO> getReviewList(Pageable pageable) {
-        return reviewRepository.findAllByOrderByRevCreatedAtDesc(pageable) // 수정된 부분
-                .map(this::convertToDTO);
-    }
-
-
-    @Transactional
-    public ReviewDTO getReviewDetail(Long reviewId) {
-        Review review = reviewRepository.findByIdWithMember(reviewId)
-                .orElseThrow(() -> new RuntimeException("Review not found"));
-
-        review.setRev_view_count(review.getRev_view_count() + 1);
-        return convertToDTO(review);
-    }
+    private final ReviewCommentRepository reviewCommentRepository;
+    private final MemberRepository memberRepository;
 
     @Transactional
     public ReviewDTO createReview(ReviewDTO reviewDTO) {
+        Member member = memberRepository.findById(reviewDTO.getMemberId())
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
         Review review = Review.builder()
-                .rev_title(reviewDTO.getRev_title())
-                .rev_content(reviewDTO.getRev_content())
-                .rev_image_url(reviewDTO.getRev_image_url())
-                .rev_view_count(0)
+                .title(reviewDTO.getTitle())
+                .content(reviewDTO.getContent())
+                .imageUrl(reviewDTO.getImageUrl()) // imageUrls 대신 imageUrl 사용
+                .rating(reviewDTO.getRating())
+                .member(member)
                 .build();
+
+        Review savedReview = reviewRepository.save(review);
+        return convertToDTO(savedReview);
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewDTO getReviewById(Long id) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+        return convertToDTO(review);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> getAllReviews() {
+        return reviewRepository.findAll().stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public ReviewDTO updateReview(Long id, ReviewDTO reviewDTO) {
+        Review review = reviewRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        review.setTitle(reviewDTO.getTitle());
+        review.setContent(reviewDTO.getContent());
+        review.setImageUrl(reviewDTO.getImageUrl());
+        review.setRating(reviewDTO.getRating());
 
         return convertToDTO(reviewRepository.save(review));
     }
 
     @Transactional
-    public ReviewDTO updateReview(Long reviewId, ReviewDTO reviewDTO) {
-        Review review = reviewRepository.findById(reviewId)
+    public void deleteReview(Long id) {
+        Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
-
-        review.setRev_title(reviewDTO.getRev_title());
-        review.setRev_content(reviewDTO.getRev_content());
-        review.setRev_image_url(reviewDTO.getRev_image_url());
-
-        return convertToDTO(review);
+        reviewRepository.delete(review);
     }
 
     @Transactional
-    public void deleteReview(Long reviewId) {
-        reviewRepository.deleteById(reviewId);
-    }
-
-    @Transactional
-    public void toggleLike(Long reviewId) {
-        // 좋아요 로직 구현
-    }
-
-    @Transactional
-    public ReviewCommentDTO addComment(Long reviewId, ReviewCommentDTO commentDTO) {
-        Review review = reviewRepository.findById(reviewId)
+    public ReviewCommentDTO addComment(ReviewCommentDTO commentDTO) {
+        Review review = reviewRepository.findById(commentDTO.getReviewId())
                 .orElseThrow(() -> new RuntimeException("Review not found"));
+        Member member = memberRepository.findById(commentDTO.getMemberId())
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        ReviewComment parentComment = null;
+        if (commentDTO.getParentId() != null) {
+            parentComment = reviewCommentRepository.findById(commentDTO.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+        }
 
         ReviewComment comment = ReviewComment.builder()
-                .rev_comment_content(commentDTO.getRev_comment_content())
+                .content(commentDTO.getContent())
+                .review(review)
+                .member(member)
+                .parent(parentComment)
                 .build();
 
-        // 댓글 저장 로직 구현
-        return convertToCommentDTO(comment);
+        ReviewComment savedComment = reviewCommentRepository.save(comment);
+        return convertToCommentDTO(savedComment);
     }
 
     private ReviewDTO convertToDTO(Review review) {
         return ReviewDTO.builder()
-                .rev_id(review.getRev_id())
-                .rev_title(review.getRev_title())
-                .rev_content(review.getRev_content())
-                .rev_image_url(review.getRev_image_url())
-                .rev_view_count(review.getRev_view_count())
-                .rev_created_at(review.getRevCreatedAt())
-                .rev_updated_at(review.getRev_updated_at())
-                .memberName(review.getMember().getDisplayName())
-                .likeCount(review.getReviewLikes().size())
-                .comments(convertToCommentDTOList(review.getReviewComments()))
+                .id(review.getId())
+                .title(review.getTitle())
+                .content(review.getContent())
+                .imageUrl(review.getImageUrl())
+                .rating(review.getRating())
+                .viewCount(review.getViewCount())
+                .createdAt(review.getCreatedAt())
+                .updatedAt(review.getUpdatedAt())
+                .memberId(review.getMember().getMemberId())
                 .build();
     }
 
     private ReviewCommentDTO convertToCommentDTO(ReviewComment comment) {
         return ReviewCommentDTO.builder()
-                .rev_comment_id(comment.getRev_comment_id())
-                .rev_comment_content(comment.getRev_comment_content())
-                .memberName(comment.getMember().getDisplayName())
-                .rev_comment_created_at(comment.getRev_comment_created_at())
+                .id(comment.getId())
+                .content(comment.getContent())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .reviewId(comment.getReview().getId())
+                .memberId(comment.getMember().getMemberId())
+                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
+                .isDeleted(comment.isDeleted())
                 .build();
-    }
-
-    private List<ReviewCommentDTO> convertToCommentDTOList(List<ReviewComment> comments) {
-        List<ReviewCommentDTO> commentDTOs = new ArrayList<>();
-        for (ReviewComment comment : comments) {
-            commentDTOs.add(convertToCommentDTO(comment));
-        }
-        return commentDTOs;
     }
 }
