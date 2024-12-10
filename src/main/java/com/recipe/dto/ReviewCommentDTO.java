@@ -1,21 +1,20 @@
 package com.recipe.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import java.sql.Timestamp;
-import java.util.List;
+import lombok.*;
+import java.time.LocalDateTime;
 
-@Data
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class ReviewCommentDTO {
-    private Long rev_comment_id;
-    private String rev_comment_content;
-    private String memberName;
-    private Timestamp rev_comment_created_at;
-    private Long parentCommentId;
-    private List<ReviewCommentDTO> replies;
+    private Long id;
+    private String content;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
+    private Long reviewId;
+    private Long memberId;
+    private Long parentId;
+    private boolean isDeleted;
 }

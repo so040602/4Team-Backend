@@ -1,14 +1,15 @@
 package com.recipe.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,35 +20,39 @@ import java.util.List;
 @AllArgsConstructor
 @Table(name = "review")
 public class Review {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long rev_id;
+    private Long id;
 
     @Column(nullable = false, length = 200)
-    private String rev_title;
+    private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
-    private String rev_content;
+    private String content;
 
-    private String rev_image_url;
+    @Column(name = "image_url")
+    private String imageUrl; // Changed to single image URL
 
-    private Integer rev_view_count = 0;
+    @Column(nullable = false)
+    @Min(1)
+    @Max(5)
+    private Integer rating;  // 1-5점 별점
+
+    @Column(columnDefinition = "integer default 0")
+    private Integer viewCount;
 
     @CreationTimestamp
-    @Column(name = "rev_created_at")
-    private Timestamp revCreatedAt;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    private Timestamp rev_updated_at;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
-    private List<ReviewLike> reviewLikes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL)
-    private List<ReviewComment> reviewComments = new ArrayList<>();
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewComment> comments = new ArrayList<>();
 }
