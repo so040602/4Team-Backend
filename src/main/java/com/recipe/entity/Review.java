@@ -38,8 +38,8 @@ public class Review {
     @Max(5)
     private Integer rating;  // 1-5점 별점
 
-    @Column(columnDefinition = "integer default 0")
-    private Integer viewCount;
+    @Column(name = "view_count", nullable = false, columnDefinition = "int default 0")
+    private int viewCount = 0;
 
     @CreationTimestamp
     @Column(name = "created_at")

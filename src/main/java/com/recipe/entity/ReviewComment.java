@@ -9,6 +9,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -45,6 +47,9 @@ public class ReviewComment {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_id")
     private ReviewComment parent;
+
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    private List<ReviewComment> childComments = new ArrayList<>();
 
     @Column(name = "is_deleted", columnDefinition = "boolean default false")
     private boolean isDeleted;
