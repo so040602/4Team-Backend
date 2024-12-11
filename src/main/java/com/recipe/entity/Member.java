@@ -41,6 +41,9 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
     private List<RecipeLike> recipeLikes = new ArrayList<>();
 
+    @OneToOne(mappedBy = "member", cascade = CascadeType.ALL)
+    private MyRefrigerator myRefrigerator;
+
     @CreationTimestamp
     @Column(updatable = false)
     private Timestamp createdAt;
