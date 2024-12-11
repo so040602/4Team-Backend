@@ -2,6 +2,7 @@ package com.recipe.controller;
 
 import com.recipe.dto.ReviewDTO;
 import com.recipe.dto.ReviewCommentDTO;
+import com.recipe.jwt.JWTUtil;
 import com.recipe.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -9,6 +10,8 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,14 +26,19 @@ import java.util.List;
 public class ReviewController {
     private final ReviewService reviewService;
     private final Path uploadPath = Paths.get("uploads");
+    private final JWTUtil jwtUtil; // JWTUtil 추가
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ReviewDTO> createReview(
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam("rating") Integer rating,
-            @RequestParam("memberId") Long memberId,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestHeader("Authorization") String token) {
+        // "Bearer " 제거 후 토큰에서 memberId 추출
+        String jwtToken = token.substring(7);
+        Long memberId = jwtUtil.getMemberId(jwtToken);
+
         ReviewDTO reviewDTO = ReviewDTO.builder()
                 .title(title)
                 .content(content)
@@ -56,8 +64,12 @@ public class ReviewController {
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam("rating") Integer rating,
-            @RequestParam("memberId") Long memberId,
-            @RequestParam(value = "image", required = false) MultipartFile image) {
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            @RequestHeader("Authorization") String token) {
+        // "Bearer " 제거 후 토큰에서 memberId 추출
+        String jwtToken = token.substring(7);
+        Long memberId = jwtUtil.getMemberId(jwtToken);
+
         ReviewDTO reviewDTO = ReviewDTO.builder()
                 .title(title)
                 .content(content)
@@ -68,8 +80,9 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long id) {
-        reviewService.deleteReview(id);
+    public ResponseEntity<Void> deleteReview(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        Long memberId = jwtUtil.getMemberId(token.substring(7)); // "Bearer " 제거 후 토큰 파싱
+        reviewService.deleteReview(id, memberId);
         return ResponseEntity.noContent().build();
     }
 
@@ -118,8 +131,9 @@ public class ReviewController {
 
     // 댓글 삭제
     @DeleteMapping("/comments/{id}")
-    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
-        reviewService.deleteComment(id);
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @RequestHeader("Authorization") String token) {
+        Long memberId = jwtUtil.getMemberId(token.substring(7)); // "Bearer " 제거 후 토큰 파싱
+        reviewService.deleteComment(id, memberId);
         return ResponseEntity.noContent().build();
     }
 }

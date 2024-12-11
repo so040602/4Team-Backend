@@ -17,4 +17,5 @@ public class ReviewCommentDTO {
     private Long memberId;
     private Long parentId;
     private boolean isDeleted;
+    private String memberDisplayName;
 }

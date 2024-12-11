@@ -71,6 +71,11 @@ public class ReviewService {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다"));
 
+        // 권한 체크
+        if (!review.getMember().getMemberId().equals(reviewDTO.getMemberId())) {
+            throw new RuntimeException("리뷰 수정 권한이 없습니다");
+        }
+
         try {
             String imageUrl = image != null ? saveImage(image) : review.getImageUrl();
 
@@ -87,9 +92,12 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(Long id) {
+    public void deleteReview(Long id, Long memberId) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
+        if (!review.getMember().getMemberId().equals(memberId)) {
+            throw new RuntimeException("You are not authorized to delete this review");
+        }
         reviewRepository.delete(review);
     }
 
@@ -153,19 +161,13 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteComment(Long id) {
+    public void deleteComment(Long id, Long memberId) {
         ReviewComment comment = reviewCommentRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("댓글을 찾을 수 없습니다."));
-
-        // 대댓글이 있는 경우 삭제된 상태로 표시
-        if (comment.getChildComments() != null && !comment.getChildComments().isEmpty()) {
-            comment.setDeleted(true);
-            comment.setContent("삭제된 댓글입니다.");
-            reviewCommentRepository.save(comment);
-        } else {
-            // 대댓글이 없는 경우 실제로 삭제
-            reviewCommentRepository.delete(comment);
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+        if (!comment.getMember().getMemberId().equals(memberId)) {
+            throw new RuntimeException("You are not authorized to delete this comment");
         }
+        reviewCommentRepository.delete(comment);
     }
 
     private String saveImage(MultipartFile image) throws IOException {
@@ -197,6 +199,7 @@ public class ReviewService {
                 .createdAt(review.getCreatedAt())
                 .updatedAt(review.getUpdatedAt())
                 .memberId(review.getMember().getMemberId())
+                .memberDisplayName(review.getMember().getDisplayName())
                 .build();
     }
 
@@ -210,6 +213,7 @@ public class ReviewService {
                 .memberId(comment.getMember().getMemberId())
                 .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .isDeleted(comment.isDeleted())
+                .memberDisplayName(comment.getMember().getDisplayName())
                 .build();
     }
 }

@@ -19,4 +19,5 @@ public class ReviewDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Long memberId;
+    private String memberDisplayName; // 작성자 이름 추가
 }
