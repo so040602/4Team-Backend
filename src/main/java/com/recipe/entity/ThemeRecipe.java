@@ -9,19 +9,19 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "recipe_ingredient")
-public class RecipeIngredient {
+@Table(name = "theme_recipe")
+public class ThemeRecipe {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recipeIngredientId;
+    private Long themeRecipeId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "theme_id")
+    private Theme theme;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ingredient_id")
-    private Ingredient ingredient;
-
-    private String ingredientAmount;
+    private Integer displayOrder;
 }

@@ -12,17 +12,15 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "ingredient")
-public class Ingredient {
+@Table(name = "cooking_tool")
+public class CookingTool {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long ingredientId;
+    private Long cookingToolId;
 
     @Column(nullable = false)
-    private String ingredientName;
+    private String cookingToolName;
 
-    private String ingredientImage;
-
-    @OneToMany(mappedBy = "ingredient")
-    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
+    @OneToMany(mappedBy = "cookingTool")
+    private List<RecipeCookingTool> recipeCookingTools = new ArrayList<>();
 }

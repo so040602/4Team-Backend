@@ -1,52 +1,75 @@
 package com.recipe.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
 @Entity
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Table(name = "recipe")
 public class Recipe {
     @Id
-    @Column(name = "recipe_idx")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recipe_idx;
+    private Long recipeId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id") //외래키 컬럼
+    @JoinColumn(name = "member_id")
     private Member member;
 
-    private String name;
-    private String food_level;
-    private int time;
-    private String complete_image;
-    private String tip;
-    private int views;
+    @Column(nullable = false)
+    private String recipeTitle;
 
+    private String recipeTip;
+
+    @Column(nullable = false)
+    private String recipeThumbnail;
+
+    @Column(nullable = false)
+    private String servingSize;
+
+    @Column(nullable = false)
+    private String cookingTime;
+
+    @Column(nullable = false)
+    private String difficultyLevel;
+
+    @Column(nullable = false)
     private String situation;
 
-    private String state_recipe;
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private RegistrationState registrationState;
+
+    private int likeCount;
 
     @CreationTimestamp
-    @Column(name = "recipe_date")
-    private LocalDateTime recipeDate;
+    @Column(updatable = false)
+    private Timestamp createdAt;
 
-    @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<RecipeIngredient> ingredients = new ArrayList<>();
+    @UpdateTimestamp
+    private Timestamp updatedAt;
 
-    @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
     private List<RecipeStep> recipeSteps = new ArrayList<>();
 
-    @OneToMany(mappedBy = "recipe", orphanRemoval = true, cascade = CascadeType.ALL)
-    private List<RecipeUtensil> recipeUtensils = new ArrayList<>();
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
+    private List<RecipeIngredient> recipeIngredients = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
+    private List<RecipeCookingTool> recipeCookingTools = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
+    private List<RecipeLike> recipeLikes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "recipe", cascade = CascadeType.ALL)
+    private List<ThemeRecipe> themeRecipes = new ArrayList<>();
 }

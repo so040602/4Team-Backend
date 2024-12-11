@@ -35,6 +35,12 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SocialConnection> socialConnections = new ArrayList<>();
 
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<Recipe> recipes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL)
+    private List<RecipeLike> recipeLikes = new ArrayList<>();
+
     @CreationTimestamp
     @Column(updatable = false)
     private Timestamp createdAt;
@@ -61,9 +67,6 @@ public class Member {
                 .findFirst()
                 .orElse(null);
     }
-
-    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Recipe> recipes;
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus;

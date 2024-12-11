@@ -1,27 +1,29 @@
 package com.recipe.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
 @Entity
-@Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@Table(name = "recipe_step")
 public class RecipeStep {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long recipeStep_id;
+    private Long recipeStepId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipe_idx")
+    @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    private String step_image;
+    @Column(nullable = false)
+    private Integer stepOrder;
 
-    private Long step_order;
-    private String description;
+    @Column(nullable = false)
+    private String stepDescription;
+
+    private String stepImage;
 }
