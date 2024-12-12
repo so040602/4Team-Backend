@@ -14,11 +14,15 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -49,8 +53,13 @@ public class ReviewController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewDTO> getReviewById(@PathVariable Long id) {
-        return ResponseEntity.ok(reviewService.getReviewById(id));
+    public ResponseEntity<ReviewDTO> getReviewById(
+            @PathVariable Long id,
+            @RequestHeader("Authorization") String token) {
+        // "Bearer " 제거 후 토큰에서 memberId 추출
+        String jwtToken = token.substring(7);
+        Long memberId = jwtUtil.getMemberId(jwtToken);
+        return ResponseEntity.ok(reviewService.getReviewById(id, memberId));
     }
 
     @GetMapping

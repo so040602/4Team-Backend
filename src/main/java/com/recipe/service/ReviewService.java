@@ -3,10 +3,12 @@ package com.recipe.service;
 import com.recipe.Repository.MemberRepository;
 import com.recipe.Repository.ReviewCommentRepository;
 import com.recipe.Repository.ReviewRepository;
+import com.recipe.Repository.ReviewViewRepository;
 import com.recipe.dto.ReviewDTO;
 import com.recipe.dto.ReviewCommentDTO;
 import com.recipe.entity.Review;
 import com.recipe.entity.ReviewComment;
+import com.recipe.entity.ReviewView;
 import com.recipe.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -28,6 +30,7 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ReviewCommentRepository reviewCommentRepository;
     private final MemberRepository memberRepository;
+    private final ReviewViewRepository reviewViewRepository;
 
     @Transactional
     public ReviewDTO createReview(ReviewDTO reviewDTO, MultipartFile image) {
@@ -52,10 +55,31 @@ public class ReviewService {
         }
     }
 
-    @Transactional(readOnly = true)
-    public ReviewDTO getReviewById(Long id) {
+    @Transactional
+    public ReviewDTO getReviewById(Long id, Long memberId) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Review not found"));
+
+        // 로그인한 사용자인 경우에만 조회수 처리
+        if (memberId != null) {
+            // 이 사용자가 이 리뷰를 처음 보는 경우에만 조회수 증가
+            if (!reviewViewRepository.existsByReview_IdAndMember_MemberId(id, memberId)) {
+                // 조회 기록 생성
+                Member member = memberRepository.findById(memberId)
+                        .orElseThrow(() -> new RuntimeException("Member not found"));
+
+                ReviewView reviewView = ReviewView.builder()
+                        .review(review)
+                        .member(member)
+                        .build();
+                reviewViewRepository.save(reviewView);
+
+                // 조회수 증가
+                review.setViewCount(review.getViewCount() + 1);
+                reviewRepository.save(review);
+            }
+        }
+
         return convertToDTO(review);
     }
 
@@ -167,7 +191,11 @@ public class ReviewService {
         if (!comment.getMember().getMemberId().equals(memberId)) {
             throw new RuntimeException("You are not authorized to delete this comment");
         }
-        reviewCommentRepository.delete(comment);
+
+        // 실제로 삭제하지 않고 삭제 표시만 함
+        comment.setContent("삭제된 댓글입니다.");
+        comment.setDeleted(true);
+        reviewCommentRepository.save(comment);
     }
 
     private String saveImage(MultipartFile image) throws IOException {

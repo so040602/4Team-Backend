@@ -31,12 +31,12 @@ public class Review {
     private String content;
 
     @Column(name = "image_url")
-    private String imageUrl; // Changed to single image URL
+    private String imageUrl;
 
     @Column(nullable = false)
     @Min(1)
     @Max(5)
-    private Integer rating;  // 1-5점 별점
+    private Integer rating;
 
     @Column(name = "view_count", nullable = false, columnDefinition = "int default 0")
     private int viewCount = 0;
@@ -55,4 +55,7 @@ public class Review {
 
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ReviewComment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ReviewView> reviewViews = new ArrayList<>();
 }
