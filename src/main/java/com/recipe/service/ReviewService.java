@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -62,25 +63,32 @@ public class ReviewService {
 
         // 로그인한 사용자인 경우에만 조회수 처리
         if (memberId != null) {
-            // 이 사용자가 이 리뷰를 처음 보는 경우에만 조회수 증가
-            if (!reviewViewRepository.existsByReview_IdAndMember_MemberId(id, memberId)) {
-                // 조회 기록 생성
-                Member member = memberRepository.findById(memberId)
-                        .orElseThrow(() -> new RuntimeException("Member not found"));
-
-                ReviewView reviewView = ReviewView.builder()
-                        .review(review)
-                        .member(member)
-                        .build();
-                reviewViewRepository.save(reviewView);
-
-                // 조회수 증가
-                review.setViewCount(review.getViewCount() + 1);
-                reviewRepository.save(review);
-            }
+            addReviewView(id, memberId);
         }
 
         return convertToDTO(review);
+    }
+
+    @Transactional
+    public void addReviewView(Long reviewId, Long memberId) {
+        Review review = reviewRepository.findById(reviewId)
+                .orElseThrow(() -> new RuntimeException("리뷰를 찾을 수 없습니다."));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        ReviewView existingView = reviewViewRepository.findByReviewAndMember(review, member);
+        if (existingView != null) {
+            existingView.setViewedAt(LocalDateTime.now());
+            reviewViewRepository.save(existingView);
+        } else {
+            ReviewView reviewView = ReviewView.builder()
+                    .review(review)
+                    .member(member)
+                    .build();
+            reviewViewRepository.save(reviewView);
+            review.setViewCount(review.getViewCount() + 1);
+            reviewRepository.save(review);
+        }
     }
 
     @Transactional(readOnly = true)

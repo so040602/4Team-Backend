@@ -28,7 +28,7 @@ public class ReviewView {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @CreationTimestamp
     @Column(name = "viewed_at")
+    @CreationTimestamp
     private LocalDateTime viewedAt;
 }
