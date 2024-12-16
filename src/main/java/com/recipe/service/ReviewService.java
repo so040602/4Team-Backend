@@ -177,6 +177,17 @@ public class ReviewService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewCommentDTO> getCommentsByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        return reviewCommentRepository.findByMemberOrderByCreatedAtDesc(member)
+                .stream()
+                .map(this::convertToCommentDTOForMember)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ReviewCommentDTO updateComment(Long id, ReviewCommentDTO commentDTO) {
         ReviewComment comment = reviewCommentRepository.findById(id)
@@ -206,6 +217,29 @@ public class ReviewService {
         reviewCommentRepository.save(comment);
     }
 
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> getReviewsByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        return reviewRepository.findByMemberOrderByCreatedAtDesc(member)
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReviewDTO> getRecentViewsByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        return reviewViewRepository.findByMemberOrderByViewedAtDesc(member)
+                .stream()
+                .map(ReviewView::getReview)
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
     private String saveImage(MultipartFile image) throws IOException {
         if (image == null || image.isEmpty()) {
             return null;
@@ -231,11 +265,9 @@ public class ReviewService {
                 .content(review.getContent())
                 .imageUrl(review.getImageUrl())
                 .rating(review.getRating())
-                .viewCount(review.getViewCount())
-                .createdAt(review.getCreatedAt())
-                .updatedAt(review.getUpdatedAt())
                 .memberId(review.getMember().getMemberId())
                 .memberDisplayName(review.getMember().getDisplayName())
+                .createdAt(review.getCreatedAt())
                 .build();
     }
 
@@ -250,6 +282,20 @@ public class ReviewService {
                 .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
                 .isDeleted(comment.isDeleted())
                 .memberDisplayName(comment.getMember().getDisplayName())
+                .build();
+    }
+
+    private ReviewCommentDTO convertToCommentDTOForMember(ReviewComment comment) {
+        return ReviewCommentDTO.builder()
+                .id(comment.getId())
+                .content(comment.getContent())
+                .memberId(comment.getMember().getMemberId())
+                .memberDisplayName(comment.getMember().getDisplayName())
+                .reviewId(comment.getReview().getId())
+                .createdAt(comment.getCreatedAt())
+                .updatedAt(comment.getUpdatedAt())
+                .parentId(comment.getParent() != null ? comment.getParent().getId() : null)
+                .isDeleted(comment.isDeleted())
                 .build();
     }
 }

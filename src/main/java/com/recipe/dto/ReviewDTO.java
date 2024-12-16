@@ -15,9 +15,9 @@ public class ReviewDTO {
     private String content;
     private String imageUrl;
     private Integer rating;
-    private Integer viewCount;
+    private Long memberId;
+    private String memberDisplayName;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long memberId;
-    private String memberDisplayName; // 작성자 이름 추가
+    private Integer viewCount;
 }

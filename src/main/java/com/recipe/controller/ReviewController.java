@@ -129,6 +129,24 @@ public class ReviewController {
         }
     }
 
+    // 내 리뷰 목록 조회
+    @GetMapping("/my")
+    public ResponseEntity<List<ReviewDTO>> getMyReviews(
+            @RequestHeader("Authorization") String token) {
+        String jwtToken = token.substring(7);
+        Long memberId = jwtUtil.getMemberId(jwtToken);
+        return ResponseEntity.ok(reviewService.getReviewsByMemberId(memberId));
+    }
+
+    // 최근 본 리뷰 목록 조회
+    @GetMapping("/recent")
+    public ResponseEntity<List<ReviewDTO>> getRecentViews(
+            @RequestHeader("Authorization") String token) {
+        String jwtToken = token.substring(7);
+        Long memberId = jwtUtil.getMemberId(jwtToken);
+        return ResponseEntity.ok(reviewService.getRecentViewsByMemberId(memberId));
+    }
+
     // 댓글 수정
     @PutMapping("/comments/{id}")
     public ResponseEntity<ReviewCommentDTO> updateComment(
@@ -144,5 +162,14 @@ public class ReviewController {
         Long memberId = jwtUtil.getMemberId(token.substring(7)); // "Bearer " 제거 후 토큰 파싱
         reviewService.deleteComment(id, memberId);
         return ResponseEntity.noContent().build();
+    }
+
+    // 내 댓글 목록 조회
+    @GetMapping("/comments/my")
+    public ResponseEntity<List<ReviewCommentDTO>> getMyComments(
+            @RequestHeader("Authorization") String token) {
+        String jwtToken = token.substring(7);
+        Long memberId = jwtUtil.getMemberId(jwtToken);
+        return ResponseEntity.ok(reviewService.getCommentsByMemberId(memberId));
     }
 }
