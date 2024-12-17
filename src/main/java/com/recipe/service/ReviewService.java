@@ -268,6 +268,7 @@ public class ReviewService {
                 .memberId(review.getMember().getMemberId())
                 .memberDisplayName(review.getMember().getDisplayName())
                 .createdAt(review.getCreatedAt())
+                .viewCount(review.getViewCount())
                 .build();
     }
 
