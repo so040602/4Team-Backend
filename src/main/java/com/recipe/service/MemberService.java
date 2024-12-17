@@ -165,8 +165,8 @@ public class MemberService {
                 .primaryEmail(member.getPrimaryEmail())
                 .displayName(member.getDisplayName())
                 .role(member.getRole())
-                .createdAt(member.getCreatedAt())
-                .updatedAt(member.getUpdatedAt())
+                .createdAt(member.getCreatedAt().toLocalDateTime())
+                .updatedAt(member.getUpdatedAt().toLocalDateTime())
                 .build();
     }
 
@@ -179,7 +179,7 @@ public class MemberService {
                 .memberId(member.getMemberId())
                 .displayName(member.getDisplayName())
                 .role(member.getRole())
-                .createdAt(member.getCreatedAt())
+                .createdAt(member.getCreatedAt().toLocalDateTime())
                 .build();
     }
 

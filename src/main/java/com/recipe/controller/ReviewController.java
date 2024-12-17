@@ -173,8 +173,16 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getCommentsByMemberId(memberId));
     }
 
+    // 회원의 댓글 목록 조회
+    @GetMapping("/comments/member/{memberId}")
+    public ResponseEntity<List<ReviewCommentDTO>> getMemberComments(@PathVariable Long memberId) {
+        List<ReviewCommentDTO> comments = reviewService.getCommentsByMemberId(memberId);
+        return ResponseEntity.ok(comments);
+    }
+
+    // 회원의 리뷰 목록 조회
     @GetMapping("/member/{memberId}")
-    public ResponseEntity<List<ReviewDTO>> getReviewsByMemberId(@PathVariable Long memberId) {
+    public ResponseEntity<List<ReviewDTO>> getMemberReviews(@PathVariable Long memberId) {
         List<ReviewDTO> reviews = reviewService.getReviewsByMemberId(memberId);
         return ResponseEntity.ok(reviews);
     }
