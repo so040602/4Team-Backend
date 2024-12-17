@@ -2,11 +2,15 @@ package com.recipe.service;
 
 import com.recipe.Repository.FollowRepository;
 import com.recipe.Repository.MemberRepository;
+import com.recipe.dto.MemberDTO;
 import com.recipe.entity.Follow;
 import com.recipe.entity.Member;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -86,5 +90,42 @@ public class FollowService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
         return followRepository.countByFollower(member);
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberDTO> getFollowers(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        List<Follow> followers = followRepository.findByFollowing(member);
+        return followers.stream()
+                .map(follow -> {
+                    Member follower = follow.getFollower();
+                    boolean isFollowing = isFollowing(memberId, follower.getMemberId());
+                    return MemberDTO.builder()
+                            .memberId(follower.getMemberId())
+                            .displayName(follower.getDisplayName())
+                            .isFollowing(isFollowing)
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<MemberDTO> getFollowing(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        List<Follow> following = followRepository.findByFollower(member);
+        return following.stream()
+                .map(follow -> {
+                    Member followingMember = follow.getFollowing();
+                    return MemberDTO.builder()
+                            .memberId(followingMember.getMemberId())
+                            .displayName(followingMember.getDisplayName())
+                            .isFollowing(true)  // 팔로잉 목록이므로 항상 true
+                            .build();
+                })
+                .collect(Collectors.toList());
     }
 }

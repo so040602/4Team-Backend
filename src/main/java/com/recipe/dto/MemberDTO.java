@@ -16,4 +16,16 @@ public class MemberDTO {
     private String role;             // 권한
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean isFollowing;
+
+    @Builder
+    public MemberDTO(Long memberId, String displayName, String primaryEmail, String role, boolean isFollowing, LocalDateTime createdAt, LocalDateTime updatedAt) {
+        this.memberId = memberId;
+        this.displayName = displayName;
+        this.primaryEmail = primaryEmail;
+        this.role = role;
+        this.isFollowing = isFollowing;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
 }

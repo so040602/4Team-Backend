@@ -26,15 +26,23 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        // Authorization 쿠키 찾기
-        String authorization = null;
-        Cookie[] cookies = request.getCookies();
+        // Authorization 헤더 또는 쿠키에서 토큰 찾기
+        String authorization = request.getHeader("Authorization");
 
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("Authorization")) {
-                    authorization = cookie.getValue();
-                    break;
+        // Authorization 헤더가 있고 Bearer로 시작하면 토큰 추출
+        if (authorization != null && authorization.startsWith("Bearer ")) {
+            authorization = authorization.substring(7);
+        }
+        // 헤더에 토큰이 없으면 쿠키에서 찾기
+        else {
+            Cookie[] cookies = request.getCookies();
+
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if (cookie.getName().equals("Authorization")) {
+                        authorization = cookie.getValue();
+                        break;
+                    }
                 }
             }
         }

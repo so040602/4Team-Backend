@@ -2,23 +2,26 @@ package com.recipe.controller;
 
 import com.recipe.dto.ApiResponse;
 import com.recipe.dto.CustomOAuth2User;
+import com.recipe.dto.MemberDTO;
 import com.recipe.service.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Map;
+
 @RestController
-@RequestMapping("/api/follows")
+@RequestMapping("/api/follow")
 @RequiredArgsConstructor
 public class FollowController {
-
     private final FollowService followService;
 
     @PostMapping("/{followingId}")
     public ResponseEntity<ApiResponse<Void>> follow(
-            @AuthenticationPrincipal CustomOAuth2User user,
-            @PathVariable Long followingId) {
+            @PathVariable Long followingId,
+            @AuthenticationPrincipal CustomOAuth2User user) {
         if (user == null) {
             throw new IllegalStateException("로그인이 필요합니다");
         }
@@ -28,8 +31,8 @@ public class FollowController {
 
     @DeleteMapping("/{followingId}")
     public ResponseEntity<ApiResponse<Void>> unfollow(
-            @AuthenticationPrincipal CustomOAuth2User user,
-            @PathVariable Long followingId) {
+            @PathVariable Long followingId,
+            @AuthenticationPrincipal CustomOAuth2User user) {
         if (user == null) {
             throw new IllegalStateException("로그인이 필요합니다");
         }
@@ -39,12 +42,37 @@ public class FollowController {
 
     @GetMapping("/check/{followingId}")
     public ResponseEntity<ApiResponse<Boolean>> checkFollow(
-            @AuthenticationPrincipal CustomOAuth2User user,
-            @PathVariable Long followingId) {
+            @PathVariable Long followingId,
+            @AuthenticationPrincipal CustomOAuth2User user) {
         boolean isFollowing = false;
         if (user != null) {
             isFollowing = followService.isFollowing(user.getMemberId(), followingId);
         }
         return ResponseEntity.ok(ApiResponse.success("팔로우 여부를 확인했습니다", isFollowing));
+    }
+
+    @GetMapping("/count/{memberId}")
+    public ResponseEntity<ApiResponse<Map<String, Long>>> getFollowCounts(@PathVariable Long memberId) {
+        long followerCount = followService.getFollowerCount(memberId);
+        long followingCount = followService.getFollowingCount(memberId);
+
+        Map<String, Long> counts = Map.of(
+                "followerCount", followerCount,
+                "followingCount", followingCount
+        );
+
+        return ResponseEntity.ok(ApiResponse.success("팔로우 카운트를 조회했습니다", counts));
+    }
+
+    @GetMapping("/followers/{memberId}")
+    public ResponseEntity<ApiResponse<List<MemberDTO>>> getFollowers(@PathVariable Long memberId) {
+        List<MemberDTO> followers = followService.getFollowers(memberId);
+        return ResponseEntity.ok(ApiResponse.success("팔로워 목록을 조회했습니다", followers));
+    }
+
+    @GetMapping("/following/{memberId}")
+    public ResponseEntity<ApiResponse<List<MemberDTO>>> getFollowing(@PathVariable Long memberId) {
+        List<MemberDTO> following = followService.getFollowing(memberId);
+        return ResponseEntity.ok(ApiResponse.success("팔로잉 목록을 조회했습니다", following));
     }
 }
