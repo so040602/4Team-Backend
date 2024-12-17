@@ -172,4 +172,10 @@ public class ReviewController {
         Long memberId = jwtUtil.getMemberId(jwtToken);
         return ResponseEntity.ok(reviewService.getCommentsByMemberId(memberId));
     }
+
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<ReviewDTO>> getReviewsByMemberId(@PathVariable Long memberId) {
+        List<ReviewDTO> reviews = reviewService.getReviewsByMemberId(memberId);
+        return ResponseEntity.ok(reviews);
+    }
 }

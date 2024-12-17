@@ -74,4 +74,10 @@ public class Member {
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Menu> menus;
 
+    @OneToMany(mappedBy = "follower")
+    private List<Follow> followings = new ArrayList<>();
+
+    @OneToMany(mappedBy = "following")
+    private List<Follow> followers = new ArrayList<>();
+
 }

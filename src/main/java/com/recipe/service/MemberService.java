@@ -153,4 +153,34 @@ public class MemberService {
     public boolean checkDisplayNameDuplicate(String displayName) {
         return memberRepository.findByDisplayName(displayName).isPresent();
     }
+
+
+    @Transactional(readOnly = true)
+    public MemberDTO getMemberInfo(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        return MemberDTO.builder()
+                .memberId(member.getMemberId())
+                .primaryEmail(member.getPrimaryEmail())
+                .displayName(member.getDisplayName())
+                .role(member.getRole())
+                .createdAt(member.getCreatedAt())
+                .updatedAt(member.getUpdatedAt())
+                .build();
+    }
+
+    @Transactional(readOnly = true)
+    public MemberDTO getMemberProfile(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+
+        return MemberDTO.builder()
+                .memberId(member.getMemberId())
+                .displayName(member.getDisplayName())
+                .role(member.getRole())
+                .createdAt(member.getCreatedAt())
+                .build();
+    }
+
 }
