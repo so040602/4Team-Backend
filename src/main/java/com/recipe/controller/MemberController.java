@@ -5,10 +5,14 @@ import com.recipe.dto.LoginResponse;
 import com.recipe.dto.MemberDTO;
 import com.recipe.dto.SignupRequest;
 import com.recipe.dto.ApiResponse;
+import com.recipe.entity.Member;
+import com.recipe.entity.MemberGrade;
 import com.recipe.service.MemberService;
+import com.recipe.service.MemberGradeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/members")
@@ -17,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final MemberGradeService memberGradeService;
 
     @PostMapping("/signup")
     public ResponseEntity<MemberDTO> signup(@RequestBody SignupRequest request) {
@@ -48,5 +53,22 @@ public class MemberController {
     @GetMapping("/check-displayname")
     public ResponseEntity<Boolean> checkDisplayNameDuplicate(@RequestParam String displayName) {
         return ResponseEntity.ok(memberService.checkDisplayNameDuplicate(displayName));
+    }
+
+    @GetMapping("/{memberId}/grade")
+    public ResponseEntity<MemberGrade> getMemberGrade(@PathVariable Long memberId) {
+        MemberDTO memberDTO = memberService.getMemberProfile(memberId);
+        return ResponseEntity.ok(memberDTO.getGrade());
+    }
+
+    @GetMapping("/grade/all")
+    public ResponseEntity<List<MemberGrade>> getAllGrades() {
+        return ResponseEntity.ok(memberGradeService.getAllGrades());
+    }
+
+    @PostMapping("/grade/update-all")
+    public ResponseEntity<String> updateAllMembersGrade() {
+        memberService.updateAllMembersGrade();
+        return ResponseEntity.ok("모든 회원의 등급이 업데이트되었습니다.");
     }
 }

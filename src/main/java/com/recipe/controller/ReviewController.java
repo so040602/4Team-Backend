@@ -3,6 +3,7 @@ package com.recipe.controller;
 import com.recipe.dto.ReviewDTO;
 import com.recipe.dto.ReviewCommentDTO;
 import com.recipe.jwt.JWTUtil;
+import com.recipe.service.MemberGradeService;
 import com.recipe.service.ReviewService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -10,25 +11,19 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/reviews")
 @RequiredArgsConstructor
 public class ReviewController {
     private final ReviewService reviewService;
+    private final MemberGradeService memberGradeService;
     private final Path uploadPath = Paths.get("uploads");
     private final JWTUtil jwtUtil; // JWTUtil 추가
 
@@ -49,7 +44,9 @@ public class ReviewController {
                 .rating(rating)
                 .memberId(memberId)
                 .build();
-        return ResponseEntity.ok(reviewService.createReview(reviewDTO, image));
+        ReviewDTO newReview = reviewService.createReview(reviewDTO, image);
+        memberGradeService.incrementReviewCount(memberId);
+        return ResponseEntity.ok(newReview);
     }
 
     @GetMapping("/{id}")
@@ -97,7 +94,9 @@ public class ReviewController {
 
     @PostMapping("/comments")
     public ResponseEntity<ReviewCommentDTO> addComment(@RequestBody ReviewCommentDTO commentDTO) {
-        return ResponseEntity.ok(reviewService.addComment(commentDTO));
+        ReviewCommentDTO newComment = reviewService.addComment(commentDTO);
+        memberGradeService.incrementCommentCount(commentDTO.getMemberId());
+        return ResponseEntity.ok(newComment);
     }
 
     @PostMapping("/comments/reply")
