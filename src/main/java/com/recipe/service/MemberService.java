@@ -1,10 +1,12 @@
 package com.recipe.service;
 
+import com.recipe.Repository.MemberGradeRepository;
 import com.recipe.dto.LoginRequest;
 import com.recipe.dto.LoginResponse;
 import com.recipe.dto.MemberDTO;
 import com.recipe.dto.SignupRequest;
 import com.recipe.entity.Member;
+import com.recipe.entity.MemberGrade;
 import com.recipe.jwt.JWTUtil;
 import com.recipe.Repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,12 +14,14 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final MemberGradeRepository memberGradeRepository;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
 
@@ -33,12 +37,17 @@ public class MemberService {
             throw new IllegalArgumentException("이미 사용중인 닉네임입니다");
         }
 
+        // 기본 등급 가져오기 (새싹)
+        MemberGrade defaultGrade = memberGradeRepository.findByGradeLevel(1)
+                .orElseThrow(() -> new RuntimeException("기본 등급을 찾을 수 없습니다"));
+
         // 새 회원 생성
         Member member = Member.builder()
                 .primaryEmail(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .displayName(request.getDisplayName())
                 .role("ROLE_USER")
+                .grade(defaultGrade)
                 .build();
 
         Member savedMember = memberRepository.save(member);
@@ -48,6 +57,7 @@ public class MemberService {
                 .primaryEmail(savedMember.getPrimaryEmail())
                 .displayName(savedMember.getDisplayName())
                 .role(savedMember.getRole())
+                .grade(savedMember.getGrade())
                 .build();
     }
 
@@ -154,11 +164,15 @@ public class MemberService {
         return memberRepository.findByDisplayName(displayName).isPresent();
     }
 
+    @Transactional(readOnly = true)
+    public Member findById(Long memberId) {
+        return memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found with id: " + memberId));
+    }
 
     @Transactional(readOnly = true)
     public MemberDTO getMemberInfo(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+        Member member = findById(memberId);
 
         return MemberDTO.builder()
                 .memberId(member.getMemberId())
@@ -172,15 +186,34 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public MemberDTO getMemberProfile(Long memberId) {
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다"));
+        Member member = findById(memberId);
 
         return MemberDTO.builder()
                 .memberId(member.getMemberId())
+                .primaryEmail(member.getPrimaryEmail())
                 .displayName(member.getDisplayName())
                 .role(member.getRole())
+                .grade(member.getGrade())
                 .createdAt(member.getCreatedAt().toLocalDateTime())
+                .updatedAt(member.getUpdatedAt().toLocalDateTime())
                 .build();
     }
 
+    @Transactional
+    public void updateAllMembersGrade() {
+        List<Member> members = memberRepository.findAll();
+        for (Member member : members) {
+            // 회원의 활동 수 기준으로 적절한 등급 찾기
+            MemberGrade appropriateGrade = memberGradeRepository.findFirstByRequiredRecipeCountLessThanEqualAndRequiredReviewCountLessThanEqualAndRequiredCommentCountLessThanEqualOrderByGradeLevelDesc(
+                    member.getRecipeCount(),
+                    member.getReviewCount(),
+                    member.getCommentCount()
+            ).orElseGet(() -> memberGradeRepository.findByGradeLevel(1)
+                    .orElseThrow(() -> new RuntimeException("기본 등급을 찾을 수 없습니다")));
+
+            // 등급 업데이트
+            member.setGrade(appropriateGrade);
+            memberRepository.save(member);
+        }
+    }
 }

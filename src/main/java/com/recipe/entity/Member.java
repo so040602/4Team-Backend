@@ -80,4 +80,11 @@ public class Member {
     @OneToMany(mappedBy = "following")
     private List<Follow> followers = new ArrayList<>();
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "grade_id")
+    private MemberGrade grade;
+
+    private int recipeCount = 0;
+    private int reviewCount = 0;
+    private int commentCount = 0;
 }
