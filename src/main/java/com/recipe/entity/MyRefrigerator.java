@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -18,7 +20,7 @@ public class MyRefrigerator {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long refri_id;
+    private Long refriId;
 
     @CreationTimestamp
     private LocalDateTime regdate;
@@ -27,4 +29,6 @@ public class MyRefrigerator {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToMany(mappedBy = "myRefrigerator", cascade = CascadeType.ALL)
+    private List<MyRefrigeratorIngredient> myRefrigeratorIngredients = new ArrayList<>();
 }
