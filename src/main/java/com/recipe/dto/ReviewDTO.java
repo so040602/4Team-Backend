@@ -17,6 +17,8 @@ public class ReviewDTO {
     private Integer rating;
     private Long memberId;
     private String memberDisplayName;
+    private Long recipeId;
+    private String recipeTitle;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Integer viewCount;

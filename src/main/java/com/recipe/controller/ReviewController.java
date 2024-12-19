@@ -32,6 +32,7 @@ public class ReviewController {
             @RequestParam("title") String title,
             @RequestParam("content") String content,
             @RequestParam("rating") Integer rating,
+            @RequestParam("recipeId") Long recipeId,
             @RequestParam(value = "image", required = false) MultipartFile image,
             @RequestHeader("Authorization") String token) {
         // "Bearer " 제거 후 토큰에서 memberId 추출
@@ -43,6 +44,7 @@ public class ReviewController {
                 .content(content)
                 .rating(rating)
                 .memberId(memberId)
+                .recipeId(recipeId)
                 .build();
         ReviewDTO newReview = reviewService.createReview(reviewDTO, image);
         memberGradeService.incrementReviewCount(memberId);

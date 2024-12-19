@@ -4,12 +4,14 @@ import com.recipe.Repository.MemberRepository;
 import com.recipe.Repository.ReviewCommentRepository;
 import com.recipe.Repository.ReviewRepository;
 import com.recipe.Repository.ReviewViewRepository;
+import com.recipe.Repository.RecipeRepository;
 import com.recipe.dto.ReviewDTO;
 import com.recipe.dto.ReviewCommentDTO;
 import com.recipe.entity.Review;
 import com.recipe.entity.ReviewComment;
 import com.recipe.entity.ReviewView;
 import com.recipe.entity.Member;
+import com.recipe.entity.Recipe;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ public class ReviewService {
     private final ReviewCommentRepository reviewCommentRepository;
     private final MemberRepository memberRepository;
     private final ReviewViewRepository reviewViewRepository;
+    private final RecipeRepository recipeRepository;
 
     @Transactional
     public ReviewDTO createReview(ReviewDTO reviewDTO, MultipartFile image) {
@@ -40,6 +43,8 @@ public class ReviewService {
             reviewDTO.setImageUrl(imageUrl);
             Member member = memberRepository.findById(reviewDTO.getMemberId())
                     .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+            Recipe recipe = recipeRepository.findById(reviewDTO.getRecipeId())
+                    .orElseThrow(() -> new RuntimeException("레시피를 찾을 수 없습니다."));
 
             Review review = Review.builder()
                     .title(reviewDTO.getTitle())
@@ -47,6 +52,7 @@ public class ReviewService {
                     .imageUrl(imageUrl)
                     .rating(reviewDTO.getRating())
                     .member(member)
+                    .recipe(recipe)
                     .build();
 
             Review savedReview = reviewRepository.save(review);
@@ -267,6 +273,8 @@ public class ReviewService {
                 .rating(review.getRating())
                 .memberId(review.getMember().getMemberId())
                 .memberDisplayName(review.getMember().getDisplayName())
+                .recipeId(review.getRecipe() != null ? review.getRecipe().getRecipeId() : null)
+                .recipeTitle(review.getRecipe() != null ? review.getRecipe().getRecipeTitle() : null)
                 .createdAt(review.getCreatedAt())
                 .viewCount(review.getViewCount())
                 .build();
