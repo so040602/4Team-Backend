@@ -13,4 +13,5 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     Optional<Recipe> findByMember_MemberIdAndRegistrationState(Long memberId, RegistrationState registrationState);
     Optional<Recipe> findByRecipeIdAndMember_MemberId(Long recipeId, Long memberId);
     List<Recipe> findByRecipeTitleContainingIgnoreCase(String searchData);
+    List<Recipe> findByRegistrationState(RegistrationState registrationState);
 }

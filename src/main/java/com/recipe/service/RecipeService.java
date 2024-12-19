@@ -272,6 +272,18 @@ public class RecipeService {
         return toRecipeCreateResponseDTO(savedRecipe);
     }
 
+    // 레시피 목록 가져오기
+    public List<RecipeDTO> getAllRecipes() {
+        List<Recipe> recipes = recipeRepository.findByRegistrationState(RegistrationState.PUBLISHED);
+        return recipes.stream()
+                .map(recipe -> RecipeDTO.builder()
+                        .recipeId(recipe.getRecipeId())
+                        .recipeTitle(recipe.getRecipeTitle())
+                        .recipeThumbnail(recipe.getRecipeThumbnail())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
     // 응답 DTO 생성 메서드
     private RecipeCreateResponseDTO toRecipeCreateResponseDTO(Recipe recipe) {
         return RecipeCreateResponseDTO.builder()
