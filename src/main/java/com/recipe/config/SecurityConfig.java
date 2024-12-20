@@ -83,8 +83,8 @@ public class SecurityConfig {
 //                .requestMatchers("/api/public/**").permitAll() // 공개 API 엔드포인트
 //                .requestMatchers("/api/search/**").permitAll() // 공개 API 엔드포인트
 //                .requestMatchers("/api/data/**").permitAll() // 공개 API 엔드포인트
-
-                .anyRequest().authenticated()
+                        .requestMatchers("/images/**").permitAll() // 이미지 접근 허용
+                        .anyRequest().authenticated()
         );
 
         // 세션 설정

@@ -19,11 +19,12 @@ public class RecipeStep {
     @JoinColumn(name = "recipe_id")
     private Recipe recipe;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private Integer stepOrder;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String stepDescription;
 
+    @Column(nullable = true)
     private String stepImage;
 }

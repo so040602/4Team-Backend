@@ -25,21 +25,21 @@ public class Recipe {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String recipeTitle;
 
     private String recipeTip;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String recipeThumbnail;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String servingSize;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String cookingTime;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String difficultyLevel;
 
     @Column(nullable = false)

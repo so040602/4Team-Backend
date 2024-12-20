@@ -20,8 +20,9 @@ public class RecipeIngredient {
     private Recipe recipe;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ingredient_id")
+    @JoinColumn(name = "ingredient_id", nullable = true)
     private Ingredient ingredient;
 
+    @Column(nullable = true)
     private String ingredientAmount;
 }
