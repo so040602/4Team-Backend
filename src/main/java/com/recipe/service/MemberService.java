@@ -216,4 +216,25 @@ public class MemberService {
             memberRepository.save(member);
         }
     }
+
+    @Transactional
+    public MemberDTO updateDisplayName(Long memberId, String newDisplayName) {
+        if (memberRepository.findByDisplayName(newDisplayName).isPresent()) {
+            throw new IllegalArgumentException("이미 사용중인 닉네임입니다");
+        }
+
+        Member member = findById(memberId);
+        member.setDisplayName(newDisplayName);
+        Member updatedMember = memberRepository.save(member);
+
+        return MemberDTO.builder()
+                .memberId(updatedMember.getMemberId())
+                .primaryEmail(updatedMember.getPrimaryEmail())
+                .displayName(updatedMember.getDisplayName())
+                .role(updatedMember.getRole())
+                .grade(updatedMember.getGrade())
+                .createdAt(updatedMember.getCreatedAt().toLocalDateTime())
+                .updatedAt(updatedMember.getUpdatedAt().toLocalDateTime())
+                .build();
+    }
 }

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/members")
@@ -70,5 +71,14 @@ public class MemberController {
     public ResponseEntity<String> updateAllMembersGrade() {
         memberService.updateAllMembersGrade();
         return ResponseEntity.ok("모든 회원의 등급이 업데이트되었습니다.");
+    }
+
+    @PutMapping("/{memberId}/displayName")
+    public ResponseEntity<ApiResponse<MemberDTO>> updateDisplayName(
+            @PathVariable Long memberId,
+            @RequestBody Map<String, String> request) {
+        String newDisplayName = request.get("displayName");
+        MemberDTO updatedMember = memberService.updateDisplayName(memberId, newDisplayName);
+        return ResponseEntity.ok(ApiResponse.success(updatedMember));
     }
 }
