@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +27,8 @@ public class RecipeService {
     private final RecipeIngredientRepository recipeIngredientRepository;
     private final RecipeCookingToolRepository recipeCookingToolRepository;
     private final ImageService imageService;
+    private final RecipeViewRepository recipeViewRepository;
+
 
     // 임시저장된 레시피 조회
     public RecipeCreateResponseDTO getTempSavedRecipe(Long memberId) {
@@ -299,6 +302,40 @@ public class RecipeService {
 
     public Long getRecipeCount(Long memberId) {
         return recipeRepository.countByMember_MemberIdAndRegistrationState(memberId, RegistrationState.PUBLISHED);
+    }
+
+    @Transactional
+    public void addRecipeView(Long recipeId, Long memberId) {
+        Recipe recipe = recipeRepository.findById(recipeId)
+                .orElseThrow(() -> new RuntimeException("Recipe not found"));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("Member not found"));
+
+        RecipeView recipeView = recipeViewRepository.findByRecipeAndMember(recipe, member);
+        if (recipeView == null) {
+            recipeView = RecipeView.builder()
+                    .recipe(recipe)
+                    .member(member)
+                    .build();
+        }
+        recipeView.setViewedAt(LocalDateTime.now());
+        recipeViewRepository.save(recipeView);
+    }
+
+    @Transactional(readOnly = true)
+    public List<RecipeDTO> getRecentViewsByMemberId(Long memberId) {
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다."));
+
+        return recipeViewRepository.findByMemberOrderByViewedAtDesc(member)
+                .stream()
+                .map(view -> RecipeDTO.builder()
+                        .recipeId(view.getRecipe().getRecipeId())
+                        .recipeTitle(view.getRecipe().getRecipeTitle())
+                        .recipeThumbnail(view.getRecipe().getRecipeThumbnail())
+                        .recipeTip(view.getRecipe().getRecipeTip())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     // 응답 DTO 생성 메서드
