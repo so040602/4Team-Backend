@@ -284,6 +284,23 @@ public class RecipeService {
                 .collect(Collectors.toList());
     }
 
+    public List<RecipeDTO> getRecipesByMemberId(Long memberId) {
+        List<Recipe> recipes = recipeRepository.findAllByMember_MemberIdAndRegistrationState(memberId, RegistrationState.PUBLISHED);
+        return recipes.stream()
+                .map(recipe -> RecipeDTO.builder()
+                        .recipeId(recipe.getRecipeId())
+                        .memberId(recipe.getMember().getMemberId())
+                        .recipeTitle(recipe.getRecipeTitle())
+                        .recipeThumbnail(recipe.getRecipeThumbnail())
+                        .recipeTip(recipe.getRecipeTip())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public Long getRecipeCount(Long memberId) {
+        return recipeRepository.countByMember_MemberIdAndRegistrationState(memberId, RegistrationState.PUBLISHED);
+    }
+
     // 응답 DTO 생성 메서드
     private RecipeCreateResponseDTO toRecipeCreateResponseDTO(Recipe recipe) {
         return RecipeCreateResponseDTO.builder()

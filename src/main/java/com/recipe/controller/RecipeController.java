@@ -43,4 +43,15 @@ public class RecipeController {
         List<RecipeDTO> recipes = recipeService.getAllRecipes();
         return ResponseEntity.ok(recipes);
     }
+    @GetMapping("/member/{memberId}")
+    public ResponseEntity<List<RecipeDTO>> getRecipesByMemberId(@PathVariable Long memberId) {
+        List<RecipeDTO> recipes = recipeService.getRecipesByMemberId(memberId);
+        return ResponseEntity.ok(recipes);
+    }
+
+    @GetMapping("/member/{memberId}/count")
+    public ResponseEntity<Long> getRecipeCount(@PathVariable Long memberId) {
+        Long count = recipeService.getRecipeCount(memberId);
+        return ResponseEntity.ok(count);
+    }
 }
