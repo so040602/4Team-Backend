@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface RecipeCookingToolRepository extends JpaRepository<RecipeCookingTool, Long> {
     List<RecipeCookingTool> findByRecipe(Recipe recipe);
+
+    // 특정 레시피의 모든 조리도구 삭제
+    void deleteByRecipe(Recipe recipe);
 }

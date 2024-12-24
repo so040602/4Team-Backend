@@ -84,6 +84,8 @@ public class SecurityConfig {
 //                .requestMatchers("/api/search/**").permitAll() // 공개 API 엔드포인트
 //                .requestMatchers("/api/data/**").permitAll() // 공개 API 엔드포인트
                         .requestMatchers("/images/**").permitAll() // 이미지 접근 허용
+                        .requestMatchers("/recipe/detail/**").permitAll()  // 레시피 상세 조회는 모든 사용자에게 허용
+                        .requestMatchers("/api/themes/**").permitAll()  // 레시피 상세 조회는 모든 사용자에게 허용
                         .anyRequest().authenticated()
         );
 

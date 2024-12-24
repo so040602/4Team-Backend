@@ -16,4 +16,5 @@ public interface RecipeRepository extends JpaRepository<Recipe, Long> {
     List<Recipe> findByRegistrationState(RegistrationState registrationState);
     List<Recipe> findAllByMember_MemberIdAndRegistrationState(Long memberId, RegistrationState registrationState);
     Long countByMember_MemberIdAndRegistrationState(Long memberId, RegistrationState registrationState);
+    Optional<Recipe> findByRecipeIdAndRegistrationState(Long recipeId, RegistrationState registrationState);
 }

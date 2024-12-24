@@ -21,4 +21,7 @@ public interface RecipeIngredientRepository extends JpaRepository<RecipeIngredie
     List<RecipeDTO> findTopRecipesByIngredients(@Param("ingredientIds") List<Long> ingredientIds);
 
     List<RecipeIngredient> findByRecipe(Recipe recipe);
+
+    // 특정 레시피의 모든 재료 삭제
+    void deleteByRecipe(Recipe recipe);
 }
