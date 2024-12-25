@@ -5,6 +5,7 @@ import com.recipe.entity.*;
 import com.recipe.Repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -427,32 +428,34 @@ public class RecipeService {
         Recipe recipe = recipeRepository.findById(recipeId)
                 .orElseThrow(() -> new EntityNotFoundException("레시피를 찾을 수 없습니다."));
 
+        // 권한 체크
+        if (!recipe.getMember().getMemberId().equals(memberId)) {
+            throw new AccessDeniedException("레시피를 삭제할 권한이 없습니다.");
+        }
+
         // 이미지 URL 수집
         List<String> imagesToDelete = new ArrayList<>();
-
-        // 썸네일 이미지
         if (recipe.getRecipeThumbnail() != null) {
             imagesToDelete.add(recipe.getRecipeThumbnail());
         }
-
-        // 레시피 단계 이미지들
         recipe.getRecipeSteps().forEach(step -> {
             if (step.getStepImage() != null) {
                 imagesToDelete.add(step.getStepImage());
             }
         });
 
-        // ImageService를 사용하여 이미지 파일들 삭제
-        imageService.deleteAllImages(imagesToDelete);
-
-        // 레시피와 관련된 모든 데이터 삭제
-        recipeLikeRepository.deleteByRecipe(recipe);
-        recipeIngredientRepository.deleteByRecipe(recipe);
-        recipeCookingToolRepository.deleteByRecipe(recipe);
-        recipeStepRepository.deleteByRecipe(recipe);
+        // 연관된 데이터 삭제 (순서 중요)
+        recipeViewRepository.deleteByRecipe(recipe);  // 조회 기록 삭제
+        recipeLikeRepository.deleteByRecipe(recipe);  // 좋아요 삭제
+        recipeStepRepository.deleteByRecipe(recipe);  // 레시피 단계 삭제
+        recipeIngredientRepository.deleteByRecipe(recipe);  // 레시피 재료 삭제
+        recipeCookingToolRepository.deleteByRecipe(recipe);  // 조리도구 삭제
 
         // 레시피 삭제
         recipeRepository.delete(recipe);
+
+        // 이미지 파일 삭제
+        imageService.deleteAllImages(imagesToDelete);
     }
 
     // 레시피 목록 가져오기
