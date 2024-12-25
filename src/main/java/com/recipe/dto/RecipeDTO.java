@@ -13,7 +13,9 @@ public class RecipeDTO {
     private String recipeTip;
     private String recipeThumbnail;
     private Long memberId;
-
+    private String displayName;
+    private Integer likeCount;
+    private Boolean liked;
 
     // 생성자 추가
     public RecipeDTO(Long recipeId, String recipeTitle, String recipeTip, String recipeThumbnail) {

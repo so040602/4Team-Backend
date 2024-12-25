@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface RecipeLikeRepository extends JpaRepository<RecipeLike, Long> {
@@ -22,4 +23,6 @@ public interface RecipeLikeRepository extends JpaRepository<RecipeLike, Long> {
     void deleteByRecipe(Recipe recipe);
 
     List<RecipeLike> findByMember_MemberId(Long memberId);
+
+    Optional<RecipeLike> findByRecipe_RecipeIdAndMember_MemberId(Long recipeId, Long memberId);
 }
