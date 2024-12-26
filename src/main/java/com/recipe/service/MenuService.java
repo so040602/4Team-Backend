@@ -24,9 +24,19 @@ public class MenuService {
     }
 
     public List<Menu> getRandomMenus() {
-        List<Menu> allMenus = menuRepository.findAll();
-        Collections.shuffle(allMenus);  // 메뉴를 섞어 랜덤화
-        int menuCount = Math.min(5, allMenus.size());  // 5와 실제 메뉴 개수 중 작은 값 선택
-        return allMenus.subList(0, menuCount);  // 가능한 만큼만 반환
+        try {
+            List<Menu> allMenus = menuRepository.findAll();
+
+            if (allMenus.isEmpty()) {
+                return Collections.emptyList();
+            }
+
+            Collections.shuffle(allMenus);
+            int menuCount = Math.min(5, allMenus.size());
+            return allMenus.subList(0, menuCount);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("메뉴를 가져오는 중 오류가 발생했습니다.", e);
+        }
     }
 }
